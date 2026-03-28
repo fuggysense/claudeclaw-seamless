@@ -1,0 +1,9 @@
+{
+  "users": [
+    {
+      "id": "YOUR_TELEGRAM_USER_ID",
+      "name": "Your Name",
+      "note": "Primary operator"
+    }
+  ]
+}
