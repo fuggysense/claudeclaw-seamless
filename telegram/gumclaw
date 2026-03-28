@@ -385,14 +385,43 @@ launch_bot() {
     exit 1
   fi
 
-  # === Step 1: Show bot info ===
+  # === Step 1: Show bot info + optional purpose edit ===
   echo ""
   if [[ "$HAS_GUM" == "1" ]]; then
     gum style --foreground "#8B7F77" "  Step 1 — Bot"
     echo "  $(gum style --foreground '#2FBF71' '✓') @$username — $purpose"
+    echo ""
+    local edit_purpose
+    edit_purpose=$(printf '%s\n' "Continue" "Edit purpose" | gum choose --cursor.foreground "#FF5A2D" 2>/dev/null) || edit_purpose="Continue"
+    if [[ "$edit_purpose" == "Edit purpose" ]]; then
+      local new_purpose
+      new_purpose=$(gum input --value "$purpose" --width 50 --prompt "  Purpose: ")
+      if [[ -n "$new_purpose" ]] && [[ "$new_purpose" != "$purpose" ]]; then
+        purpose="$new_purpose"
+        jq --arg id "$bot_id" --arg p "$new_purpose" \
+          '(.bots[] | select(.id == $id)).purpose = $p' \
+          "$REGISTRY" > "${REGISTRY}.tmp"
+        mv "${REGISTRY}.tmp" "$REGISTRY"
+        chmod 600 "$REGISTRY"
+        echo "  $(gum style --foreground '#2FBF71' '✓') Updated: @$username — $purpose"
+      fi
+    fi
   else
     echo -e "  ${DIM}Step 1 — Bot${NC}"
     echo -e "  ${GREEN}✓${NC} @$username — $purpose"
+    read -p "  Edit purpose? [y/N] " edit_p
+    if [[ "$edit_p" == "y" || "$edit_p" == "Y" ]]; then
+      read -p "  New purpose: " new_purpose
+      if [[ -n "$new_purpose" ]]; then
+        purpose="$new_purpose"
+        jq --arg id "$bot_id" --arg p "$new_purpose" \
+          '(.bots[] | select(.id == $id)).purpose = $p' \
+          "$REGISTRY" > "${REGISTRY}.tmp"
+        mv "${REGISTRY}.tmp" "$REGISTRY"
+        chmod 600 "$REGISTRY"
+        echo -e "  ${GREEN}✓${NC} Updated: @$username — $purpose"
+      fi
+    fi
   fi
 
   # Validate token
