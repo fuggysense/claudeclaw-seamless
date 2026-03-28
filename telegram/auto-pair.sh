@@ -99,14 +99,13 @@ for ACCESS_FILE in "${ACCESS_FILES[@]}"; do
   fi
 done
 
-# Create approved signal files for DM users
+# Clean up approved signal files — they trigger "Paired!" messages every time.
+# Only needed for first-time pairing. Once user is in allowFrom, remove them.
 for TID in $TRUSTED_IDS; do
   for ACCESS_FILE in "${ACCESS_FILES[@]}"; do
     APPROVED_DIR="$(dirname "$ACCESS_FILE")/approved"
-    mkdir -p "$APPROVED_DIR"
-    if [[ ! -f "$APPROVED_DIR/$TID" ]]; then
-      echo -n "$TID" > "$APPROVED_DIR/$TID"
-      CHANGED=1
+    if [[ -f "$APPROVED_DIR/$TID" ]]; then
+      rm -f "$APPROVED_DIR/$TID"
     fi
   done
 done
