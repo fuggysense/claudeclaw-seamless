@@ -259,19 +259,20 @@ cmd_add() {
 
   # Get project directory
   local project=""
-  local set_project
+  echo ""
   if [[ "$HAS_GUM" == "1" ]]; then
-    set_project=$(gum confirm "  Pin to a project directory?" && echo "y" || echo "n")
-  else
-    read -p "  Pin to a project directory? [y/N] " set_project
-  fi
-
-  if [[ "${set_project,,}" == "y" ]]; then
-    if [[ "$HAS_GUM" == "1" ]]; then
-      project=$(gum file --directory --height 10 "$HOME")
-    else
-      read -p "  Project path: " project
+    echo "  Select project directory (or Esc to skip):"
+    project=$(gum file --directory --height 15 "$HOME" 2>/dev/null) || project=""
+    if [[ -n "$project" ]]; then
+      local confirm_dir
+      confirm_dir=$(gum confirm "  Use: $(echo "$project" | sed "s|^$HOME|~|")?" && echo "y" || echo "n")
+      if [[ "$confirm_dir" != "y" ]]; then
+        echo "  Try again or Esc to skip:"
+        project=$(gum file --directory --height 15 "$HOME" 2>/dev/null) || project=""
+      fi
     fi
+  else
+    read -p "  Project directory (Enter to skip): " project
   fi
 
   # Save to registry
@@ -308,7 +309,7 @@ cmd_add() {
     connect_now="${connect_now:-y}"
   fi
 
-  if [[ "${connect_now,,}" != "n" ]]; then
+  if [[ "$connect_now" != "n" && "$connect_now" != "N" ]]; then
     launch_bot "$bot_id"
   fi
 }
@@ -367,11 +368,41 @@ launch_bot() {
     exit 1
   fi
 
-  # CD to project dir
-  local launch_dir="${project:-$(pwd)}"
+  # CD to project dir — offer choice if bot has a pinned directory
+  local launch_dir="$(pwd)"
   if [[ -n "$project" ]] && [[ -d "$project" ]]; then
-    cd "$project"
-    launch_dir="$project"
+    if [[ "$HAS_GUM" == "1" ]]; then
+      local dir_choice
+      dir_choice=$(printf '%s\n' \
+        "📁 $(echo "$project" | sed "s|^$HOME|~|") (saved)" \
+        "📂 Browse for different folder" \
+        "📍 Stay here ($(pwd | sed "s|^$HOME|~|"))" \
+        | gum choose --cursor.foreground "#FF5A2D")
+
+      if [[ "$dir_choice" == *"saved"* ]]; then
+        cd "$project"
+        launch_dir="$project"
+      elif [[ "$dir_choice" == *"Browse"* ]]; then
+        local new_dir
+        new_dir=$(gum file --directory --height 15 "$HOME" 2>/dev/null) || new_dir=""
+        if [[ -n "$new_dir" ]] && [[ -d "$new_dir" ]]; then
+          cd "$new_dir"
+          launch_dir="$new_dir"
+        fi
+      fi
+    else
+      echo "  Pinned to: $(echo "$project" | sed "s|^$HOME|~|")"
+      read -p "  Use this directory? [Y/n/path] " dir_input
+      if [[ "$dir_input" == "n" || "$dir_input" == "N" ]]; then
+        launch_dir="$(pwd)"
+      elif [[ -n "$dir_input" ]] && [[ -d "$dir_input" ]]; then
+        cd "$dir_input"
+        launch_dir="$dir_input"
+      else
+        cd "$project"
+        launch_dir="$project"
+      fi
+    fi
   fi
 
   # Run auto-pair

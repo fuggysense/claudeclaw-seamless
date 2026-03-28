@@ -51,7 +51,7 @@ WORKSPACE="${WORKSPACE:-$HOME/agent-workspace}"
 if [[ -d "$WORKSPACE" ]]; then
   echo "Directory exists: $WORKSPACE"
   read -p "Overwrite template files? [y/N] " OVERWRITE
-  if [[ "${OVERWRITE,,}" != "y" ]]; then
+  if [[ "$(echo "$OVERWRITE" | tr A-Z a-z)" != "y" ]]; then
     echo "Skipping workspace setup. Existing files preserved."
     SKIP_WORKSPACE=true
   fi
@@ -96,7 +96,7 @@ echo ""
 echo "--- Phase 2: Telegram ---"
 echo ""
 read -p "Set up Telegram bot? [Y/n] " SETUP_TG
-if [[ "${SETUP_TG,,}" == "n" ]]; then
+if [[ "$(echo "$SETUP_TG" | tr A-Z a-z)" == "n" ]]; then
   echo "Skipping Telegram setup."
 else
   # Plugin check
@@ -115,7 +115,7 @@ else
     EXISTING_TOKEN=$(grep "TELEGRAM_BOT_TOKEN=" "$CHANNELS_DIR/.env" | cut -d= -f2)
     echo "[ok] Bot token found (${EXISTING_TOKEN:0:10}...)"
     read -p "Use existing token? [Y/n] " USE_EXISTING
-    if [[ "${USE_EXISTING,,}" == "n" ]]; then
+    if [[ "$(echo "$USE_EXISTING" | tr A-Z a-z)" == "n" ]]; then
       echo ""
       echo "Get a token from @BotFather on Telegram:"
       echo "  1. DM @BotFather → /newbot → pick name/username"
@@ -148,7 +148,7 @@ else
     EXISTING_USERS=$(jq -r '.users[].id' "$CHANNELS_DIR/trusted-users.json" 2>/dev/null | tr '\n' ', ')
     echo "[ok] Trusted users: $EXISTING_USERS"
     read -p "Add another user? [y/N] " ADD_USER
-    if [[ "${ADD_USER,,}" == "y" ]]; then
+    if [[ "$(echo "$ADD_USER" | tr A-Z a-z)" == "y" ]]; then
       echo "DM @userinfobot on Telegram to get your numeric user ID."
       read -p "Telegram user ID: " TG_USER_ID
       read -p "Name: " TG_USER_NAME
@@ -178,7 +178,7 @@ else
   # Groups
   echo ""
   read -p "Use this bot in any Telegram groups? [y/N] " SETUP_GROUPS
-  if [[ "${SETUP_GROUPS,,}" == "y" ]]; then
+  if [[ "$(echo "$SETUP_GROUPS" | tr A-Z a-z)" == "y" ]]; then
     echo ""
     echo "To find your group's chat ID:"
     echo "  1. Add the bot to your group"
@@ -191,7 +191,7 @@ else
       read -p "Group name (for your reference): " GROUP_NAME
       GROUP_NAME="${GROUP_NAME:-Group}"
       read -p "Require @mention? [Y/n] " REQ_MENTION
-      REQ_MENTION=$([[ "${REQ_MENTION,,}" == "n" ]] && echo "false" || echo "true")
+      REQ_MENTION=$([[ "$(echo "$REQ_MENTION" | tr A-Z a-z)" == "n" ]] && echo "false" || echo "true")
       read -p "Restrict to specific users? Enter IDs comma-separated, or press Enter for anyone: " GROUP_ALLOW
       if [[ -n "$GROUP_ALLOW" ]]; then
         ALLOW_JSON=$(echo "$GROUP_ALLOW" | tr ',' '\n' | jq -R . | jq -s .)
@@ -290,7 +290,7 @@ if [[ "${SKIP_WORKSPACE:-}" != "true" ]]; then
   [[ "$AGENT_COUNT" -gt 0 ]] && echo "  Agents: $(ls "$WORKSPACE/agents/" 2>/dev/null | tr '\n' ', ')"
   echo ""
 fi
-if [[ "${SETUP_TG,,}" != "n" ]]; then
+if [[ "$(echo "$SETUP_TG" | tr A-Z a-z)" != "n" ]]; then
   echo "Telegram: auto-pair configured"
   echo ""
 fi
