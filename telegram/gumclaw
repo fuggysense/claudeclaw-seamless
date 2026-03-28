@@ -471,16 +471,18 @@ cmd_pick() {
   selected_id=$(echo "$choice" | awk '{print $2}')
 
   # Check if locked
-  for lid in "${locked_ids[@]}"; do
-    if [[ "$selected_id" == "$lid" ]]; then
-      echo ""
-      echo -e "  ${RED}That bot is in use. Pick a different one or release it:${NC}"
-      echo "  gumclaw --release $selected_id"
-      echo ""
-      cmd_pick
-      return
-    fi
-  done
+  if [[ ${#locked_ids[@]} -gt 0 ]]; then
+    for lid in "${locked_ids[@]}"; do
+      if [[ "$selected_id" == "$lid" ]]; then
+        echo ""
+        echo -e "  ${RED}That bot is in use. Pick a different one or release it:${NC}"
+        echo "  gumclaw --release $selected_id"
+        echo ""
+        cmd_pick
+        return
+      fi
+    done
+  fi
 
   launch_bot "$selected_id"
 }
