@@ -383,7 +383,7 @@ launch_bot() {
   echo ""
   if [[ "$HAS_GUM" == "1" ]]; then
     gum style --foreground "#2FBF71" "  🐾 Launching Claude Code with @$username"
-    echo "  $(gum style --foreground '#8B7F77' "  $purpose • ${launch_dir/#$HOME/\~}")"
+    echo "  $(gum style --foreground '#8B7F77' "  $purpose • $(echo "$launch_dir" | sed "s|^$HOME|~|")")"
   else
     echo -e "  ${GREEN}🐾 Launching Claude Code with @$username${NC}"
     echo -e "  ${DIM}$purpose • ${launch_dir/#$HOME/\~}${NC}"
@@ -394,13 +394,16 @@ launch_bot() {
   trap "rm -f '$LOCKS_DIR/${bot_id}.lock'" EXIT INT TERM
 
   # Launch Claude Code
-  TELEGRAM_BOT_TOKEN="$token" exec claude \
-    --dangerously-skip-permissions \
-    --channels plugin:telegram@claude-plugins-official \
-    "${extra_args[@]}" 2>/dev/null || \
-  TELEGRAM_BOT_TOKEN="$token" exec claude \
-    --dangerously-skip-permissions \
-    --channels plugin:telegram@claude-plugins-official
+  if [[ ${#extra_args[@]} -gt 0 ]]; then
+    TELEGRAM_BOT_TOKEN="$token" exec claude \
+      --dangerously-skip-permissions \
+      --channels plugin:telegram@claude-plugins-official \
+      "${extra_args[@]}"
+  else
+    TELEGRAM_BOT_TOKEN="$token" exec claude \
+      --dangerously-skip-permissions \
+      --channels plugin:telegram@claude-plugins-official
+  fi
 }
 
 cmd_pick() {
