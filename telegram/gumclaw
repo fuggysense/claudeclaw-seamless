@@ -593,8 +593,8 @@ step_groups() {
     local group_id group_name
     if [[ "$group_pick" == "Enter group ID manually" ]]; then
       if [[ "$HAS_GUM" == "1" ]]; then
-        group_id=$(gum input --placeholder "-1001234567890" --prompt "  Group ID: ")
-        group_name=$(gum input --placeholder "My Team Chat" --prompt "  Group name: ")
+        group_id=$(gum input --placeholder="e.g. -1001234567890" --prompt "  Group ID: ")
+        group_name=$(gum input --placeholder="My Team Chat" --prompt "  Group name: ")
       else
         read -p "┃  Group ID: " group_id
         read -p "┃  Group name: " group_name
