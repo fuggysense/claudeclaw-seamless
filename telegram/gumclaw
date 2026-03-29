@@ -38,19 +38,25 @@ SEL_GROUPS_COUNT=0
 
 show_banner() {
   if [[ "$HAS_GUM" == "1" ]]; then
-    gum style --foreground "$C_PRIMARY" '
-   ╱|、
-  (  - -)    ╔═╗╦ ╦╔╦╗╔═╗╦  ╔═╗╦ ╦
-  / つ つ    ║ ╦║ ║║║║║  ║  ╠═╣║║║
- /  |  |     ╚═╝╚═╝╩ ╩╚═╝╩═╝╩ ╩╚╩╝
-'
+    # Cat in green
+    local cat_art
+    cat_art=$(gum style --foreground "$C_PRIMARY" '   ╱|、' '  (  - -)' '  / つ つ' ' /  |  |')
+    # Gumball in blue
+    local ball
+    ball=$(gum style --foreground "#4A9FD9" '' ' ◉ ' '' '')
+    # Text in green
+    local text_art
+    text_art=$(gum style --foreground "$C_PRIMARY" '' '╔═╗╦ ╦╔╦╗╔═╗╦  ╔═╗╦ ╦' '║ ╦║ ║║║║║  ║  ╠═╣║║║' '╚═╝╚═╝╩ ╩╚═╝╩═╝╩ ╩╚╩╝')
+    # Join horizontally
+    gum join --horizontal "$cat_art" "$ball" "$text_art"
+    echo ""
     gum style --foreground "$C_MUTED" "  Telegram Bot Launcher v2"
   else
     echo -e "${GREEN}"
-    echo '   ╱|、'
-    echo '  (  - -)    ╔═╗╦ ╦╔╦╗╔═╗╦  ╔═╗╦ ╦'
-    echo '  / つ つ    ║ ╦║ ║║║║║  ║  ╠═╣║║║'
-    echo ' /  |  |     ╚═╝╚═╝╩ ╩╚═╝╩═╝╩ ╩╚╩╝'
+    echo '   ╱|、        ╔═╗╦ ╦╔╦╗╔═╗╦  ╔═╗╦ ╦'
+    echo '  (  - -)  ◉   ║ ╦║ ║║║║║  ║  ╠═╣║║║'
+    echo '  / つ つ      ╚═╝╚═╝╩ ╩╚═╝╩═╝╩ ╩╚╩╝'
+    echo ' /  |  |'
     echo -e "${NC}"
     echo -e "  ${DIM}Telegram Bot Launcher v2${NC}"
   fi
@@ -341,7 +347,7 @@ step_bot() {
   if [[ -z "$valid_user" ]]; then
     pipe "Token invalid for @$SEL_BOT_USERNAME"
     SEL_BOT_ID=""
-    echo "back"
+    STEP_RESULT="back"
     return
   fi
 
@@ -379,7 +385,7 @@ step_bot() {
     fi
   fi
 
-  echo "next"
+  STEP_RESULT="next"
 }
 
 # ============================================================
@@ -423,7 +429,7 @@ step_directory() {
       if [[ "$dir_choice" == "Yes"* ]]; then
         dir_confirmed=true
       elif [[ "$dir_choice" == *"Back"* ]]; then
-        echo "back"
+        STEP_RESULT="back"
         return
       else
         local new_dir
@@ -462,7 +468,7 @@ step_directory() {
         SEL_DIR="$(pwd)"
         dir_confirmed=true
       elif [[ "$dir_choice" == *"Back"* ]]; then
-        echo "back"
+        STEP_RESULT="back"
         return
       else
         local new_dir
@@ -486,7 +492,7 @@ step_directory() {
     pipe "✓ $display_dir"
   fi
 
-  echo "next"
+  STEP_RESULT="next"
 }
 
 # ============================================================
@@ -557,7 +563,7 @@ step_groups() {
   fi
 
   if [[ "$group_choice" == *"Back"* ]]; then
-    echo "back"
+    STEP_RESULT="back"
     return
   fi
 
@@ -655,7 +661,7 @@ step_groups() {
     pipe "✓ Groups: $SEL_GROUPS_COUNT configured"
   fi
 
-  echo "next"
+  STEP_RESULT="next"
 }
 
 # ============================================================
@@ -915,26 +921,23 @@ cmd_pick() {
   while true; do
     case $current_step in
       1)
-        local result
-        result=$(step_bot)
-        case "$result" in
+        step_bot
+        case "$STEP_RESULT" in
           next) current_step=2 ;;
           back) current_step=1 ;;
           *) ;; # stay (e.g., cmd_add was called)
         esac
         ;;
       2)
-        local result
-        result=$(step_directory)
-        case "$result" in
+        step_directory
+        case "$STEP_RESULT" in
           next) current_step=3 ;;
           back) current_step=1 ;;
         esac
         ;;
       3)
-        local result
-        result=$(step_groups)
-        case "$result" in
+        step_groups
+        case "$STEP_RESULT" in
           next) current_step=4 ;;
           back) current_step=2 ;;
         esac
