@@ -392,7 +392,7 @@ launch_bot() {
     echo "  $(gum style --foreground '#2FBF71' '✓') @$username — $purpose"
     echo ""
     local edit_purpose
-    edit_purpose=$(printf '%s\n' "Continue" "Edit purpose" | gum choose --cursor.foreground "#FF5A2D" 2>/dev/null) || edit_purpose="Continue"
+    edit_purpose=$(printf '%s\n' "Continue" "Edit purpose" | gum choose --cursor.foreground "#FF5A2D") || edit_purpose="Continue"
     if [[ "$edit_purpose" == "Edit purpose" ]]; then
       local new_purpose
       new_purpose=$(gum input --value "$purpose" --width 50 --prompt "  Purpose: ")

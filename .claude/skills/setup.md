@@ -21,8 +21,8 @@ Interactive guided setup. Walk the user through each step conversationally.
 2. Confirm the path, create the directory
 3. Copy template files from `template/` to the target:
    - `CLAUDE.md`, `SOUL.md`, `USER.md`, `cron-registry.json`
-   - `.claude/skills/daily-summary.md`
    - `agents/` (alpha, beta, gamma with their CLAUDE.md, skills, memory)
+   - Create `.claude/skills/` in target and copy `daily-summary.md` from repo's `.claude/skills/`
    - `shared/memory/`, `memory/`
 4. Ask the user to fill in `USER.md` — walk through each field:
    - Name, timezone, OS

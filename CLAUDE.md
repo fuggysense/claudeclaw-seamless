@@ -1,16 +1,17 @@
-# ClaudeClaw Seamless
+# GumClaw
 
-This repo is a setup kit for persistent Claude Code agents with seamless Telegram connectivity.
+Multi-bot Telegram launcher for Claude Code with workspace scaffolding.
 
 ## For Claude Code reading this repo
 
-When the user opens this repo in Claude Code, offer to run `/setup` to begin the guided installation.
+Offer to run `/setup` for guided installation.
 
-## What this repo contains
+## Structure
 
+- `.claude/skills/setup.md` — Guided installer (workspace + Telegram)
+- `.claude/skills/daily-summary.md` — Daily summary skill (copied to workspace)
 - `template/` — Workspace blueprint (CLAUDE.md, SOUL.md, USER.md, agents, crons, memory)
-- `telegram/` — Auto-pair scripts for zero-friction Telegram bot connectivity
-- `.claude/skills/setup.md` — Interactive guided installer
+- `telegram/` — GumClaw launcher, auto-pair, group discovery
 
 ## Quick start
 
